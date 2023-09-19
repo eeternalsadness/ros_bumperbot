@@ -19,3 +19,6 @@ catkin_install_python(
   PROGRAMS 
   nodes/simple_publisher.py 
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+add_executable(simple_cpp_publisher nodes/simple_publisher.cpp)
+target_link_libraries(simple_cpp_publisher ${catkin_LIBRARIES})
