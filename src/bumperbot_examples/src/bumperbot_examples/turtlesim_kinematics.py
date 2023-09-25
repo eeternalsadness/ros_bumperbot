@@ -1,6 +1,7 @@
 # !/usr/bin/env python3
 import rospy
 from turtlesim.msg import Pose
+import math
 
 class TurtlesimKinematics(object):
     def __init__(self):
@@ -19,8 +20,18 @@ class TurtlesimKinematics(object):
         Tx = self.last_turtle2_pose_.x - self.last_turtle1_pose_.x
         Ty = self.last_turtle2_pose_.y - self.last_turtle1_pose_.y
 
+        theta_rad = self.last_turtle2_pose_.theta - self.last_turtle1_pose_.theta
+        theta_deg = 180 * theta_rad / 3.14
+
         rospy.loginfo("""---------------------------\n
                       Translation Vector turtle1 -> turtle2\n
                       Tx: %f\n
-                      Ty: %f\n""",
-                      Tx, Ty)
+                      Ty: %f\n
+                      ROtation Matrix turtle1 -> turtle2\n
+                      theta (rad): %f\n
+                      theta (deg): %f\n
+                      | R11     R12| : | %f     %f |\n
+                      | R21     R22|   | %f     %f |\n""",
+                      Tx, Ty, theta_rad, theta_deg, 
+                      math.cos(theta_rad), -math.sin(theta_rad),
+                      math.sin(theta_rad), math.cos(theta_rad))
