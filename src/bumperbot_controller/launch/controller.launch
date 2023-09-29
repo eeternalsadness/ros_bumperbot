@@ -11,7 +11,7 @@
     <node pkg="controller_manager" type="spawner" name="controller_manager"
           respawn="false" output="screen" args="wheel_left_controller wheel_right_controller joint_state_controller"/>
 
-    <node pkg="bumperbot_controller" type="simple_controller_node.cpp" name="simple_controller_node"
+    <node pkg="bumperbot_controller" type="simple_controller_node" name="simple_controller_node"
           respawn="true" output="screen">
           <param name="wheel_radius" type="double" value="$(arg wheel_radius)"/>
           <param name="wheel_separation" type="double" value="$(arg wheel_separation)"/>

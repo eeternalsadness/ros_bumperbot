@@ -15,15 +15,15 @@ catkin_python_setup()
 catkin_package(
   INCLUDE_DIRS include
   CATKIN_DEPENDS
-    std_msgs
-    geometry_msgs
+  std_msgs
+  geometry_msgs
   DEPENDS Eigen3
 )
 
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIR}
+  ${EIGEN3_INCLUDE_DIRS}
 )
 
 catkin_install_python(PROGRAMS
