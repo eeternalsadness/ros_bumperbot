@@ -11,6 +11,12 @@ public:
 private:
     ros::NodeHandle nh_;
     geometry_msgs::TransformStamped static_transform_stamped_;
+    geometry_msgs::TransformStamped dynamic_transform_stamped_;
+    ros::Timer timer_;
+    double last_x_;
+    double x_increment_;
+
+    void timerCallback(const ros::TimerEvent &);
 };
 
 #endif
