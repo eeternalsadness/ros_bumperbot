@@ -48,6 +48,9 @@ target_link_libraries(simple_cpp_publisher ${catkin_LIBRARIES})
 add_executable(simple_cpp_subscriber nodes/simple_subscriber.cpp)
 target_link_libraries(simple_cpp_subscriber ${catkin_LIBRARIES})
 
+add_executable(simple_timer_cpp nodes/simple_timer.cpp)
+target_link_libraries(simple_timer_cpp ${catkin_LIBRARIES})
+
 add_executable(turtlesim_kinematics_node nodes/turtlesim_kinematics_node.cpp src/turtlesim_kinematics.cpp)
 add_dependencies(turtlesim_kinematics_node ${${PROJECT_NAME}_EXPORTED_TARGET} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(turtlesim_kinematics_node turtlesim_kinematics ${catkin_LIBRARIES})
