@@ -44,6 +44,7 @@ catkin_install_python(
   nodes/tf_examples_node.py
   nodes/simple_timer.py
   nodes/simple_service_server.py
+  nodes/simple_service_client.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 add_library(turtlesim_kinematics src/turtlesim_kinematics.cpp)
