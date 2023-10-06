@@ -1,7 +1,8 @@
 # !/usr/bin/env python3
 import rospy
-from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster
+from tf2_ros import StaticTransformBroadcaster, TransformBroadcaster, TransformListener, Buffer
 from geometry_msgs.msg import TransformStamped
+from bumperbot_examples.srv import GetTransform, GetTransformResponse
 
 class TfExamples(object):
     def __init__(self):
@@ -32,6 +33,10 @@ class TfExamples(object):
         rospy.loginfo("Publishing static transform between %s and %s", self.static_transform_stamped_.header.frame_id, 
                       self.static_transform_stamped_.child_frame_id)
         
+        self.get_transform_srv_ = rospy.Service("get_transform", GetTransform, self.getTransformCallback)
+        self.tf_buffer_ = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer_)
+        
     def timerCallback(self, event):
         self.dynamic_transform_stamped_.header.stamp = rospy.Time.now()
         self.dynamic_transform_stamped_.header.frame_id = "odom"
@@ -48,3 +53,20 @@ class TfExamples(object):
 
         self.dynamic_broadcaster_.sendTransform(self.dynamic_transform_stamped_)
         self.last_x_ = self.dynamic_transform_stamped_.transform.translation.x
+
+    def getTransformCallback(self, req):
+        rospy.loginfo("Requested transform between %s and %s", req.frame_id, req.child_frame_id)
+        res = GetTransformResponse()
+        requested_transform = TransformStamped()
+
+        try:
+            requested_transform = self.tf_buffer_.lookup_transform(req.frame_id, req.child_frame_id, rospy.Time())
+        except Exception as e:
+            rospy.logerr("An error occured while transforming %s and %s", req.frame_id, req.child_frame_id)
+            res.success = False
+            return res
+
+        rospy.loginfo("The requested transform is: %s", requested_transform)
+        res.transform = requested_transform
+        res.success = True
+        return res
