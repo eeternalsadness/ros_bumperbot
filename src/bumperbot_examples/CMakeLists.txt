@@ -64,10 +64,6 @@ target_link_libraries(simple_cpp_subscriber ${catkin_LIBRARIES})
 add_executable(simple_timer_cpp nodes/simple_timer.cpp)
 target_link_libraries(simple_timer_cpp ${catkin_LIBRARIES})
 
-add_executable(simple_service_server_cpp nodes/simple_service_server.cpp)
-add_dependencies(simple_service_server_cpp ${${PROJECT_NAME}_EXPORTED_TARGET} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(simple_service_server_cpp ${catkin_LIBRARIES})
-
 add_executable(turtlesim_kinematics_node nodes/turtlesim_kinematics_node.cpp src/turtlesim_kinematics.cpp)
 add_dependencies(turtlesim_kinematics_node ${${PROJECT_NAME}_EXPORTED_TARGET} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(turtlesim_kinematics_node turtlesim_kinematics ${catkin_LIBRARIES})
@@ -75,3 +71,11 @@ target_link_libraries(turtlesim_kinematics_node turtlesim_kinematics ${catkin_LI
 add_executable(tf_examples_node nodes/tf_examples_node.cpp src/tf_examples.cpp)
 add_dependencies(tf_examples_node ${${PROJECT_NAME}_EXPORTED_TARGET} ${catkin_EXPORTED_TARGETS})
 target_link_libraries(tf_examples_node tf_examples ${catkin_LIBRARIES})
+
+add_executable(simple_service_server_cpp nodes/simple_service_server.cpp)
+add_dependencies(simple_service_server_cpp ${${PROJECT_NAME}_EXPORTED_TARGET} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(simple_service_server_cpp ${catkin_LIBRARIES})
+
+add_executable(simple_service_client_cpp nodes/simple_service_client.cpp)
+add_dependencies(simple_service_client_cpp ${${PROJECT_NAME}_EXPORTED_TARGET} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(simple_service_client_cpp ${catkin_LIBRARIES})
