@@ -2,13 +2,14 @@
 // http://wiki.ros.org/tf2_ros?distro=noetic
 // https://wiki.ros.org/tf/Tutorials/Writing%20a%20tf%20broadcaster%20(C++)
 // http://wiki.ros.org/tf2/Tutorials/Writing%20a%20tf2%20listener%20%28C%2B%2B%29
+// http://wiki.ros.org/tf2/Tutorials/Quaternions
 
 #include "bumperbot_examples/tf_examples.h"
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <tf2_ros/transform_broadcaster.h>
 
 TfExamples::TfExamples(const ros::NodeHandle &nh) 
-    : nh_(nh), last_x_(0.0), x_increment_(0.05), tf_listener_(tf_buffer_) {
+    : nh_(nh), last_x_(0.0), x_increment_(0.05), tf_listener_(tf_buffer_), rotations_counter_(0) {
     static tf2_ros::StaticTransformBroadcaster static_broadcaster;
 
     static_transform_stamped_.header.stamp = ros::Time::now();
@@ -31,6 +32,10 @@ TfExamples::TfExamples(const ros::NodeHandle &nh)
     timer_ = nh_.createTimer(ros::Duration(0.1), &TfExamples::timerCallback, this);
 
     get_transform_srv_ = nh_.advertiseService("get_transform", &TfExamples::getTransformCallback, this);
+
+    // quaternions
+    last_orientation_.setRPY(0, 0, 0);
+    orientation_increment_.setRPY(0, 0, 0.05);
 }
 
 void TfExamples::timerCallback(const ros::TimerEvent &event){
@@ -44,13 +49,27 @@ void TfExamples::timerCallback(const ros::TimerEvent &event){
     dynamic_transform_stamped_.transform.translation.y = 0.0;
     dynamic_transform_stamped_.transform.translation.z = 0.0;
 
-    dynamic_transform_stamped_.transform.rotation.x = 0.0;
-    dynamic_transform_stamped_.transform.rotation.y = 0.0;
-    dynamic_transform_stamped_.transform.rotation.z = 0.0;
-    dynamic_transform_stamped_.transform.rotation.w = 1.0;
+    // dynamic_transform_stamped_.transform.rotation.x = 0.0;
+    // dynamic_transform_stamped_.transform.rotation.y = 0.0;
+    // dynamic_transform_stamped_.transform.rotation.z = 0.0;
+    // dynamic_transform_stamped_.transform.rotation.w = 1.0;
+
+    tf2::Quaternion q = last_orientation_ * orientation_increment_;
+    q.normalize();
+    dynamic_transform_stamped_.transform.rotation.x = q.x();
+    dynamic_transform_stamped_.transform.rotation.y = q.y();
+    dynamic_transform_stamped_.transform.rotation.z = q.z();
+    dynamic_transform_stamped_.transform.rotation.w = q.w();
 
     dynamic_broadcaster.sendTransform(dynamic_transform_stamped_);
     last_x_ = dynamic_transform_stamped_.transform.translation.x;
+
+    last_orientation_ = q;
+    rotations_counter_++;
+    if(rotations_counter_ >= 100){
+        orientation_increment_ = orientation_increment_.inverse();
+        rotations_counter_ = 0;
+    }
 }
 
 bool TfExamples::getTransformCallback(
