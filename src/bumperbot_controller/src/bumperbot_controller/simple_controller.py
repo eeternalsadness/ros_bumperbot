@@ -3,16 +3,23 @@ import rospy
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
 import numpy as np
+from sensor_msgs.msg import JointState
 
 class SimpleController(object):
     def __init__(self, wheel_radius, wheel_separation):
         rospy.loginfo("Using wheel radius %d" % wheel_radius)
         rospy.loginfo("Using wheel separation %d" % wheel_separation)
+        self.wheel_radius_ = wheel_radius
+        self.wheel_separation_ = wheel_separation
+        self.left_wheel_prev_pos_ = 0.0
+        self.rigth_wheel_prev_pos_ = 0.0
+        self.prev_time_ = rospy.Time.now()
 
         self.right_cmd_pub_ = rospy.Publisher("wheel_right_controller/command", Float64, queue_size = 10)
         self.left_cmd_pub_ = rospy.Publisher("wheel_left_controller/command", Float64, queue_size = 10)
 
         self.vel_sub_ = rospy.Subscriber("bumperbot_controller/cmd_vel", Twist, self.velCallback)
+        self.joint_sub_ = rospy.Subscriber("joint_states", JointState, self.jointCallback)
 
         self.speed_conversion_ = np.array([[wheel_radius / 2, wheel_radius / 2], 
                                            [wheel_radius / wheel_separation, -wheel_radius / wheel_separation]])
@@ -29,3 +36,20 @@ class SimpleController(object):
         
         self.right_cmd_pub_.publish(right_speed)
         self.left_cmd_pub_.publish(left_speed)
+
+    def jointCallback(self, msg):
+        dp_left = msg.position[0] - self.left_wheel_prev_pos_
+        dp_right = msg.position[1] - self.rigth_wheel_prev_pos_
+        dt = (msg.header.stamp - self.prev_time_).to_sec()
+
+        self.left_wheel_prev_pos_ = msg.position[0]
+        self.rigth_wheel_prev_pos_ = msg.position[1]
+        self.prev_time_ = msg.header.stamp
+
+        phi_left = dp_left / dt
+        phi_right = dp_right / dt
+
+        linear = (self.wheel_radius_ * phi_right + self.wheel_radius_ * phi_left) / 2
+        angular = (self.wheel_radius_ * phi_right - self.wheel_radius_ * phi_left) / self.wheel_separation_
+
+        rospy.loginfo("linear: %f angular: %f", linear, angular)
