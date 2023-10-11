@@ -4,7 +4,7 @@
 
 SimpleController::SimpleController(const ros::NodeHandle &nh, double wheel_radius, double wheel_separation) 
     : nh_(nh), wheel_radius_(wheel_radius), wheel_separation_(wheel_separation), left_wheel_prev_pos_(0.0)
-    , right_wheel_prev_pos_(0.0) {
+    , right_wheel_prev_pos_(0.0), x_(0.0), y_(0.0), theta_(0.0) {
     ROS_INFO_STREAM("Using wheel radius " << wheel_radius);
     ROS_INFO_STREAM("Using wheel separation " << wheel_separation);
 
@@ -54,5 +54,15 @@ void SimpleController::jointCallback(const sensor_msgs::JointState &msg){
     double linear = (wheel_radius_ * phi_right + wheel_radius_ * phi_left) / 2;
     double angular = (wheel_radius_ * phi_right - wheel_radius_ * phi_left) / wheel_separation_;
 
+    double d_s = (wheel_radius_ * dp_right + wheel_radius_ * dp_left) / 2;
+    double d_theta = (wheel_radius_ * dp_right - wheel_radius_ * dp_left) / wheel_separation_;
+
+    theta_ += d_theta;
+    x_ += d_s * cos(theta_);
+    y_ += d_s * sin(theta_);
+
     ROS_INFO_STREAM("linear: " << linear << " angular: " << angular);
+    ROS_INFO("x: %f", x_);
+    ROS_INFO("y: %f", y_);
+    ROS_INFO("theta: %f", theta_);
 }

@@ -23,6 +23,9 @@ private:
     double wheel_separation_;
     double left_wheel_prev_pos_;
     double right_wheel_prev_pos_;
+    double x_;
+    double y_;
+    double theta_;
     ros::Time prev_time_;
     
     Eigen::Matrix2d speed_conversion_;
