@@ -5,6 +5,7 @@
 #include <geometry_msgs/Twist.h>
 #include <Eigen/Core>
 #include <sensor_msgs/JointState.h>
+#include <nav_msgs/Odometry.h>
 
 class SimpleController{
 public:
@@ -17,6 +18,7 @@ private:
     ros::NodeHandle nh_;
     ros::Publisher right_cmd_pub_;
     ros::Publisher left_cmd_pub_;
+    ros::Publisher odom_pub_;
     ros::Subscriber vel_sub_;
     ros::Subscriber joint_sub_;
     double wheel_radius_;
@@ -27,6 +29,7 @@ private:
     double y_;
     double theta_;
     ros::Time prev_time_;
+    nav_msgs::Odometry odom_msg_;
     
     Eigen::Matrix2d speed_conversion_;
 };

@@ -1,6 +1,9 @@
+// http://wiki.ros.org/navigation/Tutorials/RobotSetup/Odom
+
 #include "bumperbot_controller/simple_controller.h"
 #include <std_msgs/Float64.h>
 #include <Eigen/Geometry>
+#include <tf2/LinearMath/Quaternion.h>
 
 SimpleController::SimpleController(const ros::NodeHandle &nh, double wheel_radius, double wheel_separation) 
     : nh_(nh), wheel_radius_(wheel_radius), wheel_separation_(wheel_separation), left_wheel_prev_pos_(0.0)
@@ -10,8 +13,20 @@ SimpleController::SimpleController(const ros::NodeHandle &nh, double wheel_radiu
 
     prev_time_ = ros::Time::now();
 
+    // Odometry message
+    odom_msg_.header.frame_id = "odom";
+    odom_msg_.child_frame_id = "base_footprint";
+    odom_msg_.pose.pose.position.x = 0.0;
+    odom_msg_.pose.pose.position.y = 0.0;
+    odom_msg_.pose.pose.position.z = 0.0;
+    odom_msg_.pose.pose.orientation.x = 0.0;
+    odom_msg_.pose.pose.orientation.y = 0.0;
+    odom_msg_.pose.pose.orientation.z = 0.0;
+    odom_msg_.pose.pose.orientation.w = 1.0;
+
     right_cmd_pub_ = nh_.advertise<std_msgs::Float64>("wheel_right_controller/command", 10);
     left_cmd_pub_ = nh_.advertise<std_msgs::Float64>("wheel_left_controller/command", 10);
+    odom_pub_ = nh_.advertise<nav_msgs::Odometry>("bumperbot_controller/odom", 10);
 
     vel_sub_ = nh_.subscribe("bumperbot_controller/cmd_vel", 1000, &SimpleController::velCallback, this);
     joint_sub_ = nh_.subscribe("joint_states", 1000, &SimpleController::jointCallback, this);
@@ -61,8 +76,17 @@ void SimpleController::jointCallback(const sensor_msgs::JointState &msg){
     x_ += d_s * cos(theta_);
     y_ += d_s * sin(theta_);
 
-    ROS_INFO_STREAM("linear: " << linear << " angular: " << angular);
-    ROS_INFO("x: %f", x_);
-    ROS_INFO("y: %f", y_);
-    ROS_INFO("theta: %f", theta_);
+    tf2::Quaternion q;
+    q.setRPY(0, 0, theta_);
+    odom_msg_.pose.pose.position.x = x_;
+    odom_msg_.pose.pose.position.y = y_;
+    odom_msg_.pose.pose.orientation.x = q.x();
+    odom_msg_.pose.pose.orientation.y = q.y();
+    odom_msg_.pose.pose.orientation.z = q.z();
+    odom_msg_.pose.pose.orientation.w = q.w();
+    odom_msg_.twist.twist.linear.x = linear;
+    odom_msg_.twist.twist.angular.z =  angular;
+    odom_msg_.header.stamp = ros::Time::now();
+
+    odom_pub_.publish(odom_msg_);
 }
