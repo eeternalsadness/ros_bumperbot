@@ -5,6 +5,8 @@ from geometry_msgs.msg import Twist
 import numpy as np
 from sensor_msgs.msg import JointState
 import math
+from nav_msgs.msg import Odometry
+import tf_conversions
 
 class SimpleController(object):
     def __init__(self, wheel_radius, wheel_separation):
@@ -19,8 +21,18 @@ class SimpleController(object):
         self.y_ = 0.0
         self.theta_ = 0.0
 
+        # odometry message
+        self.odom_msg_ = Odometry()
+        self.odom_msg_.header.frame_id = "odom"
+        self.odom_msg_.child_frame_id = "base_footprint"
+        self.odom_msg_.pose.pose.orientation.x = 0.0
+        self.odom_msg_.pose.pose.orientation.y = 0.0
+        self.odom_msg_.pose.pose.orientation.z = 0.0
+        self.odom_msg_.pose.pose.orientation.w = 1.0
+
         self.right_cmd_pub_ = rospy.Publisher("wheel_right_controller/command", Float64, queue_size = 10)
         self.left_cmd_pub_ = rospy.Publisher("wheel_left_controller/command", Float64, queue_size = 10)
+        self.odom_pub_ = rospy.Publisher("bumperbot_controller/odom", Odometry, queue_size=10)
 
         self.vel_sub_ = rospy.Subscriber("bumperbot_controller/cmd_vel", Twist, self.velCallback)
         self.joint_sub_ = rospy.Subscriber("joint_states", JointState, self.jointCallback)
@@ -62,7 +74,15 @@ class SimpleController(object):
         self.x_ += d_s * math.cos(self.theta_)
         self.y_ += d_s * math.sin(self.theta_)
 
-        rospy.loginfo("linear: %f angular: %f", linear, angular)
-        rospy.loginfo("x: %f", self.x_)
-        rospy.loginfo("y: %f", self.y_)
-        rospy.loginfo("theta: %f", self.theta_)
+        q = tf_conversions.transformations.quaternion_from_euler(0, 0, self.theta_)
+        self.odom_msg_.pose.pose.orientation.x = q[0]
+        self.odom_msg_.pose.pose.orientation.y = q[1]
+        self.odom_msg_.pose.pose.orientation.z = q[2]
+        self.odom_msg_.pose.pose.orientation.w = q[3]
+        self.odom_msg_.header.stamp = rospy.Time.now()
+        self.odom_msg_.pose.pose.position.x = self.x_
+        self.odom_msg_.pose.pose.position.y = self.y_
+        self.odom_msg_.twist.twist.linear.x = linear
+        self.odom_msg_.twist.twist.angular.z = angular
+
+        self.odom_pub_.publish(self.odom_msg_)
