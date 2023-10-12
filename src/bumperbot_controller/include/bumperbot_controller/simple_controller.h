@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Twist.h>
+#include <geometry_msgs/TransformStamped.h>
 #include <Eigen/Core>
 #include <sensor_msgs/JointState.h>
 #include <nav_msgs/Odometry.h>
@@ -30,6 +31,7 @@ private:
     double theta_;
     ros::Time prev_time_;
     nav_msgs::Odometry odom_msg_;
+    geometry_msgs::TransformStamped transform_stamped_;
     
     Eigen::Matrix2d speed_conversion_;
 };
