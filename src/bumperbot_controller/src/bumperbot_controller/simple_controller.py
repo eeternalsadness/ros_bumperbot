@@ -1,12 +1,13 @@
 # !/usr/bin/env python3
 import rospy
 from std_msgs.msg import Float64
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, TransformStamped
 import numpy as np
 from sensor_msgs.msg import JointState
 import math
 from nav_msgs.msg import Odometry
 import tf_conversions
+from tf2_ros import TransformBroadcaster
 
 class SimpleController(object):
     def __init__(self, wheel_radius, wheel_separation):
@@ -29,6 +30,11 @@ class SimpleController(object):
         self.odom_msg_.pose.pose.orientation.y = 0.0
         self.odom_msg_.pose.pose.orientation.z = 0.0
         self.odom_msg_.pose.pose.orientation.w = 1.0
+
+        self.br_ = TransformBroadcaster()
+        self.transform_stamped_ = TransformStamped()
+        self.transform_stamped_.header.frame_id = "odom"
+        self.transform_stamped_.child_frame_id = "base_footprint"
 
         self.right_cmd_pub_ = rospy.Publisher("wheel_right_controller/command", Float64, queue_size = 10)
         self.left_cmd_pub_ = rospy.Publisher("wheel_left_controller/command", Float64, queue_size = 10)
@@ -86,3 +92,13 @@ class SimpleController(object):
         self.odom_msg_.twist.twist.angular.z = angular
 
         self.odom_pub_.publish(self.odom_msg_)
+
+        self.transform_stamped_.transform.translation.x = self.x_
+        self.transform_stamped_.transform.translation.y = self.y_
+        self.transform_stamped_.transform.rotation.x = q[0]
+        self.transform_stamped_.transform.rotation.y = q[1]
+        self.transform_stamped_.transform.rotation.z = q[2]
+        self.transform_stamped_.transform.rotation.w = q[3]
+        self.transform_stamped_.header.stamp = rospy.Time.now()
+
+        self.br_.sendTransform(self.transform_stamped_)
