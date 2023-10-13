@@ -36,6 +36,7 @@ include_directories(
 
 catkin_install_python(PROGRAMS
   nodes/simple_controller_node.py
+  nodes/noisy_controller_node.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
