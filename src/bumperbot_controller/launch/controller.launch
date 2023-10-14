@@ -13,6 +13,7 @@
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher"
           respawn="false" output="screen"/>
 
+    <!-- simple controller -->
     <group if="$(arg is_simple)">
       <rosparam file="$(find bumperbot_controller)/config/simple_controller.yaml" command="load"/>
 
@@ -26,6 +27,7 @@
       </node>
     </group>
 
+    <!-- diff drive controller -->
     <group unless="$(arg is_simple)">
       <rosparam file="$(find bumperbot_controller)/config/diff_drive_controller.yaml" command="load"/>
       
@@ -33,6 +35,7 @@
           respawn="false" output="screen" args="bumperbot_controller joint_state_controller"/>
     </group>
 
+    <!-- noisy controller -->
     <node pkg="bumperbot_controller" type="noisy_controller_node$(arg py_suffix)" name="noisy_controller_node" 
         respawn="true" output="screen">
         <param name="wheel_radius" type="double" value="$(eval arg('wheel_radius') + arg('wheel_radius_error')"/>

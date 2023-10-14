@@ -47,8 +47,8 @@ class NoisyController(object):
         dp_right = wheel_encoder_right - self.rigth_wheel_prev_pos_
         dt = (msg.header.stamp - self.prev_time_).to_sec()
 
-        self.left_wheel_prev_pos_ = msg.position[0]
-        self.rigth_wheel_prev_pos_ = msg.position[1]
+        self.left_wheel_prev_pos_ = wheel_encoder_left
+        self.rigth_wheel_prev_pos_ = wheel_encoder_right
         self.prev_time_ = msg.header.stamp
 
         phi_left = dp_left / dt
