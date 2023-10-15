@@ -38,7 +38,7 @@
     <!-- noisy controller -->
     <node pkg="bumperbot_controller" type="noisy_controller_node$(arg py_suffix)" name="noisy_controller_node" 
         respawn="true" output="screen">
-        <param name="wheel_radius" type="double" value="$(eval arg('wheel_radius') + arg('wheel_radius_error')"/>
-        <param name="wheel_separation" type="double" value="$(eval arg('wheel_separation') + arg('wheel_separation_error')"/>
+        <param name="wheel_radius" type="double" value="$(eval arg('wheel_radius') + arg('wheel_radius_error'))"/>
+        <param name="wheel_separation" type="double" value="$(eval arg('wheel_separation') + arg('wheel_separation_error'))"/>
     </node>
 </launch>
