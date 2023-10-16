@@ -24,11 +24,23 @@ void KalmanFilter::odomCallback(const nav_msgs::Odometry &odom){
         return;
     }
 
+    motion_ = odom.twist.twist.angular.z - last_angular_z_;
+
     KalmanFilter::statePrediction();
     KalmanFilter::measurementUpdate();
+
+    kalman_odom_.twist.twist.angular.z = mean_;
+    odom_pub_.publish(kalman_odom_);
+
+    last_angular_z_ = odom.twist.twist.angular.z;
 }
 
 void KalmanFilter::measurementUpdate(){
     mean_ = (mean_ * measurement_variance_ + imu_angular_z_ * variance_) / (variance_ + measurement_variance_);
     variance_ = (variance_ * measurement_variance_) / (variance_ + measurement_variance_);
+}
+
+void KalmanFilter::statePrediction(){
+    mean_ = mean_ + motion_;
+    variance_ = variance_ + motion_variance_;
 }

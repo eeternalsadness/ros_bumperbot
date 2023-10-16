@@ -104,7 +104,7 @@ catkin_python_setup()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES bumperbot_localization
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
@@ -120,7 +120,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -153,6 +153,14 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+add_library(kalman_filter src/kalman_filter.cpp)
+add_dependencies(kalman_filter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(kalman_filter ${catkin_LIBRARIES})
+
+add_executable(kalman_filter_node nodes/kalman_filter_node.cpp src/kalman_filter.cpp)
+add_dependencies(kalman_filter_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+target_link_libraries(kalman_filter_node kalman_filter ${catkin_LIBRARIES})
 
 #############
 ## Install ##
