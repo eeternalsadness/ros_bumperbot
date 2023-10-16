@@ -16,6 +16,8 @@ class KalmanFilter(object):
         self.last_angular_z = 0.0
         self.motion_ = 0.0
         self.kalman_odom_ = Odometry()
+        self.motion_variance_ = 4.0
+        self.measurement_variance_ = 0.5
 
     def imuCallback(self, imu):
         self.imu_angular_z_ = imu.angular_velocity.z
@@ -31,3 +33,7 @@ class KalmanFilter(object):
         
         self.statePrediction()
         self.measurementUpdate()
+
+    def measurementUpdate(self):
+        self.mean_ = (self.measurement_variance_ * self.mean_ + self.variance_ * self.imu_angular_z_) / (self.variance_ + self.measurement_variance_)
+        self.variance_ = (self.variance_ * self.measurement_variance_) / (self.variance_ + self.measurement_variance_)
