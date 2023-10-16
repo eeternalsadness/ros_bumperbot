@@ -1,4 +1,4 @@
-# !/usr/env/bin python3
+# !/usr/bin/env python3
 import rospy
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import Imu
@@ -31,9 +31,20 @@ class KalmanFilter(object):
             self.is_first_odom_ = False
             return
         
+        self.motion_ = odom.twist.twist.angular.z - self.last_angular_z
+
         self.statePrediction()
         self.measurementUpdate()
+
+        self.kalman_odom_.twist.twist.angular.z = self.mean_
+        self.odom_pub_.publish(self.kalman_odom_)
+
+        self.last_angular_z = odom.twist.twist.angular.z
 
     def measurementUpdate(self):
         self.mean_ = (self.measurement_variance_ * self.mean_ + self.variance_ * self.imu_angular_z_) / (self.variance_ + self.measurement_variance_)
         self.variance_ = (self.variance_ * self.measurement_variance_) / (self.variance_ + self.measurement_variance_)
+
+    def statePrediction(self):
+        self.mean_ = self.mean + self.motion_
+        self.variance_ = self.variance_ + self.motion_variance_
