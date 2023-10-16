@@ -22,9 +22,14 @@ private:
     double last_angular_z_;
     double motion_;
     nav_msgs::Odometry kalman_odom_;
+    double measurement_variance_;
+    double motion_variance_;
 
     void imuCallback(const sensor_msgs::Imu &);
     void odomCallback(const nav_msgs::Odometry &);
+    
+    void statePrediction();
+    void measurementUpdate();
 };
 
 #endif
