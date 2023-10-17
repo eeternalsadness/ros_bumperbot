@@ -4,7 +4,7 @@
     <arg name="py_suffix" value="" unless="$(arg use_python)"/>
     
     <node pkg="tf" type="static_transform_publisher" name="base_footprint_ekf_broadcaster"
-          args="0 0 0.103 1 0 0 0 base_footprint_ekf imu_link_ekf_100"/>
+          args="0 0 0.103 1 0 0 0 base_footprint_ekf imu_link_ekf 100"/>
     
     <node pkg="bumperbot_localization" type="imu_republisher_node$(arg py_suffix)" name="imu_republisher_node"
           output="screen" respawn="true"/>
